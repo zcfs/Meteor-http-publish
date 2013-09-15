@@ -1,7 +1,7 @@
 HTTP.publish [![Build Status](https://travis-ci.org/raix/Meteor-http-publish.png?branch=master)](https://travis-ci.org/raix/Meteor-http-publish)
 ============
 
-This package add the abillity to add `HTTP` server publish to your project. It's a server-side package only *- no client simulations added.*
+This package add the abillity to add `HTTP` server publish to your project. It's a server-side package only
 
 ##Usage
 HTTP.publish creates a http crud restpoint for a collection *- only one cursor is allowed pr. publish*
@@ -65,10 +65,10 @@ The publish scope contains different kinds of inputs. We can also get user detai
 ##Passing data via header
 From the client:
 ```js
-  HTTP.call('POST', 'list', {
+  HTTP.call('GET', '/api/list', {
     data: { foo: 'bar' }
   }, function(err, result) {
-    console.log('Content: ' + result.content + ' === "Hello"');
+    console.log('Content in json: ' + result.content);
   });
 ```
 
@@ -84,10 +84,13 @@ The client needs the user `_id` and `access_token` to login in HTTP methods. *On
 
 Client
 ```js
-  HTTP.call('POST', '/hello', {
+  HTTP.call('POST', '/list', {
     params: {
       id: Meteor.userId(),
       token: Accounts && Accounts._storedLoginToken()
+    },
+    data: {
+      text: 'document created via http insert point'
     }
   }, function(err, result) {
     console.log('Got back: ' + result.content);
