@@ -18,7 +18,7 @@ removedId = '';
 
 Tinytest.addAsync('HTTP - publish - client - get list', function (test, onComplete) {
 
-  HTTP.get('http://localhost:3000/api/list', function(err, result) {
+  HTTP.get('/api/list', function(err, result) {
     // Test the length of array result
     var len = result.data && result.data.length;
     test.isTrue(!!len, 'Result was empty');
@@ -37,7 +37,7 @@ Tinytest.addAsync('HTTP - publish - client - put list', function (test, onComple
   test.isTrue(id !== '', 'No id is set?');
 
   // Update the data
-  HTTP.put('http://localhost:3000/api/list/' + id, {
+  HTTP.put('/api/list/' + id, {
     data: {
       $set: { text: 'UPDATED' }
     }
@@ -46,7 +46,7 @@ Tinytest.addAsync('HTTP - publish - client - put list', function (test, onComple
     test.isTrue(resultId !== undefined, 'Didnt get the expected id in result');
 
     // Check if data is updated
-    HTTP.get('http://localhost:3000/api/list', function(err, result) {
+    HTTP.get('/api/list', function(err, result) {
       var len = result.data && result.data.length;
       test.isTrue(!!len, 'Result was empty');
       var obj = result.data && result.data[0] || {};
@@ -61,7 +61,7 @@ Tinytest.addAsync('HTTP - publish - client - put list', function (test, onComple
 Tinytest.addAsync('HTTP - publish - client - insert/remove list', function (test, onComplete) {
 
   // Insert a doc
-  HTTP.post('http://localhost:3000/api/list', {
+  HTTP.post('/api/list', {
     data: {
       text: 'INSERTED'
     }
@@ -69,7 +69,7 @@ Tinytest.addAsync('HTTP - publish - client - insert/remove list', function (test
     var resultId = result.data && result.data._id;
     test.isTrue(resultId !== undefined, 'Didnt get the expected id in result');
     // Delete the doc
-    HTTP.del('http://localhost:3000/api/list/' + resultId, function(err, result) {
+    HTTP.del('/api/list/' + resultId, function(err, result) {
       removedId = result.data && result.data._id;
       test.isTrue(removedId !== undefined, 'Didnt get the expected id in result');
       onComplete();
@@ -82,7 +82,7 @@ Tinytest.addAsync('HTTP - publish - client - check removed', function (test, onC
 
   test.isTrue(removedId !== '', 'No removedId is set?');
 
-  HTTP.get('http://localhost:3000/api/list/' + removedId, function(err, result) {
+  HTTP.get('/api/list/' + removedId, function(err, result) {
     var obj = result.data || {};
     test.isTrue(obj._id === undefined, 'Item was not removed');
     test.isTrue(err.response.statusCode === 404, 'Item was not removed');
@@ -96,7 +96,7 @@ Tinytest.addAsync('HTTP - publish - client - check findOne', function (test, onC
 
   test.isTrue(id !== '', 'No id is set?');
 
-  HTTP.get('http://localhost:3000/api/list/' + id, function(err, result) {
+  HTTP.get('/api/list/' + id, function(err, result) {
     var obj = result.data || {};
     test.isTrue(obj._id !== undefined, 'expected a document');
     test.isTrue(obj.text === 'UPDATED', 'expected text === UPDATED');
