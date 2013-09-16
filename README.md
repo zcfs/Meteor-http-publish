@@ -7,7 +7,11 @@ This package add the abillity to add `HTTP` server publish to your project. It's
 HTTP.publish creates a http crud restpoint for a collection *- only one cursor is allowed pr. publish*
 
 ###Security
-All `CUD` methods are the exact same as the `ddp` methods handlers - This means that `Meteor.allow` and `Meteor.deny` is setting the access rules for both `ddp` and `http` collection methods.
+`CRUD+L` - Create Read Update Delete + List are common rest point operations.
+
+All `CUD` methods are the exact same as the `ddp` methods handlers - This means that `Meteor.allow` and `Meteor.deny` are setting the access rules for both `ddp` and `http` collection methods.
+
+All `R+L` methods are limited to the publish function.
 
 ###Fully mounted
 If handed a collection and a publish function the HTTP.publish will mount on follow urls and methods:
@@ -65,10 +69,11 @@ The publish scope contains different kinds of inputs. We can also get user detai
 ##Passing data via header
 From the client:
 ```js
-  HTTP.call('GET', '/api/list', {
+  HTTP.get('/api/list', {
     data: { foo: 'bar' }
   }, function(err, result) {
-    console.log('Content in json: ' + result.content);
+    console.log('Content in parsed json: ');
+    console.log(result.data);
   });
 ```
 
@@ -84,7 +89,7 @@ The client needs the user `_id` and `access_token` to login in HTTP methods. *On
 
 Client
 ```js
-  HTTP.call('POST', '/list', {
+  HTTP.post('/list', {
     params: {
       id: Meteor.userId(),
       token: Accounts && Accounts._storedLoginToken()
@@ -126,7 +131,7 @@ Example: *(`json` is buildin)*
 
 `GET` url: `/api/list?format=json`
 ```js
-    HTTP.call('GET', '/api/list', {
+    HTTP.get('/api/list', {
       params: {
         format: 'json'
       }
