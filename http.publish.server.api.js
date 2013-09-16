@@ -82,6 +82,19 @@ _publishHTTP.error = function(statusCode, message, scope) {
   return result;
 };
 
+// We use the ddp connection handlers allready setup and secured
+_publishHTTP.getMethodHandler = function(collection, methodName) {
+  if (collection instanceof Meteor.Collection) {
+    if (collection._connection && collection._connection.method_handlers) {
+      return collection._connection.method_handlers[collection._prefix + methodName];
+    } else {
+      throw new Error('HTTP publish does not work with current version of Meteor');
+    }
+  } else {
+    throw new Error('_publishHTTP.getMethodHandler expected a collection');
+  }
+}
+
 // Set format handlers
 /*
   HTTP.publishFormats({
@@ -137,15 +150,6 @@ HTTP.publish = function(/* name, func or collection, func */) {
 
   // console.log('HTTP restpoint: ' + name);
 
-  // We use the ddp connection handlers allready setup and secured
-  function getMethodHandler(methodName) {
-    if (collection._connection && collection._connection.method_handlers) {
-      return collection._connection.method_handlers[collection._prefix + methodName];
-    } else {
-      throw new Error('HTTP publish does not work with current version of Meteor');
-    }
-  }
-
   // list and create
   methods[name] = function(data) {
     // Return the published documents
@@ -169,7 +173,7 @@ HTTP.publish = function(/* name, func or collection, func */) {
 
     // Create new document
     if (this.method === 'POST' && collection) {
-      var insertMethodHandler = getMethodHandler('insert');
+      var insertMethodHandler = _publishHTTP.getMethodHandler(collection, 'insert');
       // Make sure that _id isset else create a Meteor id
       data._id = data._id || Random.id();
       // Create the document
@@ -235,7 +239,7 @@ HTTP.publish = function(/* name, func or collection, func */) {
 
         // update the document
         if (this.method === 'PUT') {
-          var updateMethodHandler = getMethodHandler('update');
+          var updateMethodHandler = _publishHTTP.getMethodHandler(collection, 'update');
           // Create the document
           try {
             // We should be passed a document in data
@@ -251,7 +255,7 @@ HTTP.publish = function(/* name, func or collection, func */) {
 
         // delete the document
         if (this.method === 'DELETE') {
-          var removeMethodHandler = getMethodHandler('remove');
+          var removeMethodHandler = _publishHTTP.getMethodHandler(collection, 'remove');
           // Create the document
           try {
             // We should be passed a document in data

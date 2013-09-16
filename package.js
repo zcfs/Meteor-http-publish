@@ -22,10 +22,13 @@ Package.on_use(function(api) {
 });
 
 Package.on_test(function (api) {
-  api.use('http-publish', ['server']);
-  api.use('test-helpers', 'server');
+  api.use('http-publish', ['client', 'server']);
+  api.use('test-helpers', ['client', 'server']);
+  api.use('http', 'client');
+
   api.use(['tinytest', 'underscore', 'ejson', 'ordered-dict',
            'random', 'deps']);
 
-  api.add_files('http.publish.tests.js', 'server');
+  api.add_files('http.publish.tests.client.js', 'client');
+  api.add_files('http.publish.tests.server.js', 'server');
 });
