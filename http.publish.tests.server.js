@@ -22,19 +22,26 @@ list.allow({
   remove: function() { return true; }
 });
 
+console.log('Rig publish');
 HTTP.publish(list, function() {
   return list.find();
 });
 
-Tinytest.add('HTTP - publish - server - rig test database', function(test) {
-  // Empty test db
-  list.remove({});
 
-  // Insert one text
-  list.insert({ text: 'OK' });
+Meteor.methods({
+  clearTest: function() {
+    console.log('Client called clearTest');
+    // Empty test db
+    list.remove({});
 
-  var count = list.find().count();
-  test.equal(count, 1, 'No data or not cleared the test database?');
+    // Insert one text
+    list.insert({ text: 'OK' });  
+
+    // Count
+    var count = list.find().count();
+
+    return !!(count === 1);  
+  }
 });
 
 

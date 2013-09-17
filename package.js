@@ -29,6 +29,6 @@ Package.on_test(function (api) {
   api.use(['tinytest', 'underscore', 'ejson', 'ordered-dict',
            'random', 'deps']);
 
-  api.add_files('http.publish.tests.client.js', 'client');
   api.add_files('http.publish.tests.server.js', 'server');
+  api.add_files('http.publish.tests.client.js', 'client');
 });

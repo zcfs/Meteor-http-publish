@@ -3,7 +3,7 @@ function equals(a, b) {
 }
 
 list = new Meteor.Collection('list');
-console.log('Client url: ' + Meteor.absoluteUrl());
+console.log('Client url: ' + Meteor.absoluteUrl('api'));
 
 Tinytest.add('HTTP - publish - client - test environment', function(test) {
   test.isTrue(typeof _publishHTTP === 'undefined', 'test environment initialized _publishHTTP');
@@ -14,14 +14,12 @@ Tinytest.add('HTTP - publish - client - test environment', function(test) {
 });
 
 
-Tinytest.add('HTTP - publish - client - wait for server', function(test) {
+Tinytest.addAsync('HTTP - publish - client - clearTest', function (test, onComplete) {
   test.isTrue(true);
-  for (var i = 0; i < 5; i++) {
-    for (var a = 0; a < 999999999; a++) {
-      /* NOOP */
-      var c = i*a;
-    }    
-  }
+  Meteor.call('clearTest', function(err, result) {
+    test.isTrue(result);
+    onComplete();
+  });
   test.isTrue(true);
 });
 
@@ -31,7 +29,7 @@ removedId = '';
 
 Tinytest.addAsync('HTTP - publish - client - get list', function (test, onComplete) {
 
-  HTTP.get('/api/list', function(err, result) {
+  HTTP.get(Meteor.absoluteUrl('api/list'), function(err, result) {
     // Test the length of array result
     var len = result.data && result.data.length;
     test.isTrue(!!len, 'Result was empty');
@@ -50,7 +48,7 @@ Tinytest.addAsync('HTTP - publish - client - put list', function (test, onComple
   test.isTrue(id !== '', 'No id is set?');
 
   // Update the data
-  HTTP.put('/api/list/' + id, {
+  HTTP.put(Meteor.absoluteUrl('api/list/' + id), {
     data: {
       $set: { text: 'UPDATED' }
     }
@@ -59,7 +57,7 @@ Tinytest.addAsync('HTTP - publish - client - put list', function (test, onComple
     test.isTrue(resultId !== undefined, 'Didnt get the expected id in result');
 
     // Check if data is updated
-    HTTP.get('/api/list', function(err, result) {
+    HTTP.get(Meteor.absoluteUrl('api/list'), function(err, result) {
       var len = result.data && result.data.length;
       test.isTrue(!!len, 'Result was empty');
       var obj = result.data && result.data[0] || {};
@@ -74,7 +72,7 @@ Tinytest.addAsync('HTTP - publish - client - put list', function (test, onComple
 Tinytest.addAsync('HTTP - publish - client - insert/remove list', function (test, onComplete) {
 
   // Insert a doc
-  HTTP.post('/api/list', {
+  HTTP.post(Meteor.absoluteUrl('api/list'), {
     data: {
       text: 'INSERTED'
     }
@@ -82,7 +80,7 @@ Tinytest.addAsync('HTTP - publish - client - insert/remove list', function (test
     var resultId = result.data && result.data._id;
     test.isTrue(resultId !== undefined, 'Didnt get the expected id in result');
     // Delete the doc
-    HTTP.del('/api/list/' + resultId, function(err, result) {
+    HTTP.del(Meteor.absoluteUrl('api/list/' + resultId), function(err, result) {
       removedId = result.data && result.data._id;
       test.isTrue(removedId !== undefined, 'Didnt get the expected id in result');
       onComplete();
@@ -95,7 +93,7 @@ Tinytest.addAsync('HTTP - publish - client - check removed', function (test, onC
 
   test.isTrue(removedId !== '', 'No removedId is set?');
 
-  HTTP.get('/api/list/' + removedId, function(err, result) {
+  HTTP.get(Meteor.absoluteUrl('api/list/' + removedId), function(err, result) {
     var obj = result.data || {};
     test.isTrue(obj._id === undefined, 'Item was not removed');
     test.isTrue(err.response.statusCode === 404, 'Item was not removed');
@@ -109,7 +107,7 @@ Tinytest.addAsync('HTTP - publish - client - check findOne', function (test, onC
 
   test.isTrue(id !== '', 'No id is set?');
 
-  HTTP.get('/api/list/' + id, function(err, result) {
+  HTTP.get(Meteor.absoluteUrl('api/list/' + id), function(err, result) {
     var obj = result.data || {};
     test.isTrue(obj._id !== undefined, 'expected a document');
     test.isTrue(obj.text === 'UPDATED', 'expected text === UPDATED');
