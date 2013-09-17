@@ -3,6 +3,7 @@ function equals(a, b) {
 }
 
 list = new Meteor.Collection('list');
+console.log('Client url: ' + Meteor.absoluteUrl());
 
 Tinytest.add('HTTP - publish - client - test environment', function(test) {
   test.isTrue(typeof _publishHTTP === 'undefined', 'test environment initialized _publishHTTP');
@@ -10,8 +11,20 @@ Tinytest.add('HTTP - publish - client - test environment', function(test) {
   test.isTrue(typeof HTTP.publish !== 'undefined', 'test environment not initialized HTTP.publish');
   test.isTrue(typeof HTTP.unpublish !== 'undefined', 'test environment not initialized HTTP.unpublish');
   test.isTrue(typeof HTTP.publishFormats !== 'undefined', 'test environment not initialized HTTP.publishFormats');
-
 });
+
+
+Tinytest.add('HTTP - publish - client - wait for server', function(test) {
+  test.isTrue(true);
+  for (var i = 0; i < 5; i++) {
+    for (var a = 0; a < 999999999; a++) {
+      /* NOOP */
+      var c = i*a;
+    }    
+  }
+  test.isTrue(true);
+});
+
 
 id = '';
 removedId = '';

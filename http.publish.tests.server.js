@@ -12,6 +12,7 @@ Tinytest.add('HTTP - publish - server - test environment', function(test) {
 });
 
 list = new Meteor.Collection('list');
+console.log('Server url: ' + Meteor.absoluteUrl());
 
 
 
