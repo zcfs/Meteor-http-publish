@@ -151,9 +151,11 @@ HTTP.publish = function(/* name, func or collection, func */) {
   // console.log('HTTP restpoint: ' + name);
 
   // list and create
-  methods[name] = function(data) {
+  methods[name] = {};
+
+  if (func) {
     // Return the published documents
-    if (this.method === 'GET' && func) {
+    methods[name].get = function(data) {
       // Format the scope for the publish method
       var publishScope = _publishHTTP.getPublishScope(this);
       // Get the publish cursor
@@ -169,10 +171,12 @@ HTTP.publish = function(/* name, func or collection, func */) {
         // We didnt get any
         return _publishHTTP.error(200, [], this);
       }
-    } // EO GET
+    };
+  }
 
-    // Create new document
-    if (this.method === 'POST' && collection) {
+  if (collection) {
+    // If we have a collection then add insert method
+    methods[name].post = function(data) {
       var insertMethodHandler = _publishHTTP.getMethodHandler(collection, 'insert');
       // Make sure that _id isset else create a Meteor id
       data._id = data._id || Random.id();
@@ -186,20 +190,20 @@ HTTP.publish = function(/* name, func or collection, func */) {
         // This would be a Meteor.error?
         return _publishHTTP.error(err.error, { error: err.message }, this);
       }
-    }
-  };
+    };
 
-  if (collection) {
-    // get, update and remove
-    methods[name + '/:id'] = function(data) {
-      // Get the mongoId
-      var mongoId = this.params.id;
+    // We also add the findOne, update and remove methods
+    methods[name + '/:id'] = {};
+    
+    if (func) {
+      // We have to have a publish method inorder to publish id? The user could
+      // just write a publish all if needed - better to make this explicit
+      methods[name + '/:id'].get = function(data) {
+        // Get the mongoId
+        var mongoId = this.params.id;
 
-      // We would allways expect a string but it could be empty
-      if (mongoId !== '') {
-
-        // return the single document
-        if (this.method === 'GET' && func) {
+        // We would allways expect a string but it could be empty
+        if (mongoId !== '') {
 
           // Format the scope for the publish method
           var publishScope = _publishHTTP.getPublishScope(this);
@@ -234,47 +238,62 @@ HTTP.publish = function(/* name, func or collection, func */) {
               return _publishHTTP.error(404, { error: 'Document with id ' + mongoId + ' not found' }, this);
             }
           }
-        } // EO GET
 
+        } else {
+          return _publishHTTP.error(400, { error: 'Method expected a document id' }, this);
+        }
+      };
+    }
 
-        // update the document
-        if (this.method === 'PUT') {
-          var updateMethodHandler = _publishHTTP.getMethodHandler(collection, 'update');
-          // Create the document
-          try {
-            // We should be passed a document in data
-            updateMethodHandler.apply(this, [{ _id: mongoId }, data]);
-            // Return the data
-            return _publishHTTP.formatResult({ _id: mongoId }, this);
-          } catch(err) {
-            // This would be a Meteor.error?
-            return _publishHTTP.error(err.error, { error: err.message }, this);
-          }
-        } // EO PUT
+    methods[name + '/:id'].put = function(data) {
+      // Get the mongoId
+      var mongoId = this.params.id;
 
+      // We would allways expect a string but it could be empty
+      if (mongoId !== '') {
 
-        // delete the document
-        if (this.method === 'DELETE') {
-          var removeMethodHandler = _publishHTTP.getMethodHandler(collection, 'remove');
-          // Create the document
-          try {
-            // We should be passed a document in data
-            removeMethodHandler.apply(this, [{ _id: mongoId }]);
-            // Return the data
-            return _publishHTTP.formatResult({ _id: mongoId }, this);
-          } catch(err) {
-            // This would be a Meteor.error?
-            return _publishHTTP.error(err.error, { error: err.message }, this);
-          }
-        } // EO DELETE
-
-
+        var updateMethodHandler = _publishHTTP.getMethodHandler(collection, 'update');
+        // Create the document
+        try {
+          // We should be passed a document in data
+          updateMethodHandler.apply(this, [{ _id: mongoId }, data]);
+          // Return the data
+          return _publishHTTP.formatResult({ _id: mongoId }, this);
+        } catch(err) {
+          // This would be a Meteor.error?
+          return _publishHTTP.error(err.error, { error: err.message }, this);
+        }
+        
       } else {
         return _publishHTTP.error(400, { error: 'Method expected a document id' }, this);
-      }
+      }      
     };
-  } // EO not publish only
 
+    methods[name + '/:id'].delete = function(data) {
+       // Get the mongoId
+      var mongoId = this.params.id;
+
+      // We would allways expect a string but it could be empty
+      if (mongoId !== '') {
+
+        var removeMethodHandler = _publishHTTP.getMethodHandler(collection, 'remove');
+        // Create the document
+        try {
+          // We should be passed a document in data
+          removeMethodHandler.apply(this, [{ _id: mongoId }]);
+          // Return the data
+          return _publishHTTP.formatResult({ _id: mongoId }, this);
+        } catch(err) {
+          // This would be a Meteor.error?
+          return _publishHTTP.error(err.error, { error: err.message }, this);
+        }
+        
+      } else {
+        return _publishHTTP.error(400, { error: 'Method expected a document id' }, this);
+      }     
+    };
+
+  }
 
   HTTP.methods(methods);
 }; // EO Publish

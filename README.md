@@ -63,7 +63,7 @@ The publish scope contains different kinds of inputs. We can also get user detai
 
 
 * `this.userId` The user whos id and token was used to run this method, if set/found
-* `this.query` - query params `?token=1&id=2` -> { token: 1, id: 2 }
+* `this.query` - query params `?token=1` -> { token: 1 }
 * `this.params` - Set params /foo/:name/test/:id -> { name: '', id: '' }
 
 ##Passing data via header
@@ -85,33 +85,9 @@ HTTP Server method:
 ```
 
 ##Authentication
-The client needs the user `_id` and `access_token` to login in HTTP methods. *One could create a HTTP login/logout method for allowing pure external access*
+For details on authentication of http calls please read the [Authentication part in HTTP.methods package](https://github.com/raix/Meteor-http-methods#authentication)
 
-Client
-```js
-  HTTP.post('/list', {
-    params: {
-      id: Meteor.userId(),
-      token: Accounts && Accounts._storedLoginToken()
-    },
-    data: {
-      text: 'document created via http insert point'
-    }
-  }, function(err, result) {
-    console.log('Got back: ' + result.content);
-  });
-```
-
-Server
-```js
-  HTTP.publish(myCollection, function(data) {
-    if (this.userId) {
-      // Got a user
-    } else {
-      // No user id
-    }
-  });
-```
+*The publish will have the `this.userId` set if an authenticated user is making the request.*
 
 ##Format handlers
 The query parametre `format` is used to set different output formats. The buildin format is `json` *(EJSON since we are on Meteor)*
