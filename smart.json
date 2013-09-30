@@ -1,9 +1,9 @@
 {
   "name": "http-publish",
-  "description": "Adds HTTP server publish - HTTP.publish",
+  "description": "Adds HTTP server publish - HTTP.publish RESTful",
   "homepage": "https://github.com/raix/Meteor-http-publish",
   "author": "Morten Henriksen  (http://gi-software.com)",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "git": "https://github.com/raix/Meteor-http-publish.git",
   "packages": {
     "http-methods": {

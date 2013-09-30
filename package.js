@@ -1,9 +1,9 @@
 Package.describe({
-    summary: 'Adds HTTP.publish  and HTTP.unpublish\n'+
-         '\u001b[32mv0.0.2\n'+
+    summary: 'Adds HTTP.publish and HTTP.unpublish RESTful\n'+
+         '\u001b[32mv0.0.3\n'+
          '\u001b[33m-----------------------------------------\n'+
          '\u001b[0m Adds HTTP.publish  and HTTP.unpublish    \n'+
-         '\u001b[0m                                          \n'+
+         '\u001b[0m For creating rest points                 \n'+
          '\u001b[33m-------------------------------------RaiX\n'
 });
 
