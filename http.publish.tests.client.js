@@ -6,7 +6,7 @@ list = new Meteor.Collection('list');
 console.log('Client url: ' + Meteor.absoluteUrl('api'));
 
 Tinytest.add('http-publish - client - test environment', function(test) {
-  test.isTrue(typeof _publishHTTP === 'undefined', 'test environment initialized _publishHTTP');
+  test.isTrue(typeof _publishHTTP === 'undefined', 'test environment not initialized _publishHTTP');
   test.isTrue(typeof HTTP !== 'undefined', 'test environment not initialized HTTP');
   test.isTrue(typeof HTTP.publish !== 'undefined', 'test environment not initialized HTTP.publish');
   test.isTrue(typeof HTTP.unpublish !== 'undefined', 'test environment not initialized HTTP.unpublish');
