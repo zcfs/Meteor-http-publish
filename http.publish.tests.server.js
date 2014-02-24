@@ -2,7 +2,7 @@ function equals(a, b) {
   return !!(EJSON.stringify(a) === EJSON.stringify(b));
 }
 
-Tinytest.add('HTTP - publish - server - test environment', function(test) {
+Tinytest.add('http-publish - server - test environment', function(test) {
   test.isTrue(typeof _publishHTTP !== 'undefined', 'test environment not initialized _publishHTTP');
   test.isTrue(typeof HTTP !== 'undefined', 'test environment not initialized HTTP');
   test.isTrue(typeof HTTP.publish !== 'undefined', 'test environment not initialized HTTP.publish');
@@ -45,7 +45,7 @@ Meteor.methods({
 });
 
 
-Tinytest.add('HTTP - publish - server - getMethodHandler', function(test) {
+Tinytest.add('http-publish - server - getMethodHandler', function(test) {
 
   try {
     var methodHandler = _publishHTTP.getMethodHandler(list, 'insert');
@@ -59,7 +59,7 @@ Tinytest.add('HTTP - publish - server - getMethodHandler', function(test) {
 });
 
 
-Tinytest.add('HTTP - publish - server - formatHandlers', function(test) { 
+Tinytest.add('http-publish - server - formatHandlers', function(test) { 
 
   test.isTrue(typeof _publishHTTP.formatHandlers.json === 'function', 'Cant find formatHandler for json');
 
@@ -77,7 +77,7 @@ Tinytest.add('HTTP - publish - server - formatHandlers', function(test) {
 
 });
 
-Tinytest.add('HTTP - publish - server - getPublishScope', function(test) { 
+Tinytest.add('http-publish - server - getPublishScope', function(test) { 
 
   var oldScope = {
     userId: '1',
@@ -96,7 +96,7 @@ Tinytest.add('HTTP - publish - server - getPublishScope', function(test) {
 
 });
 
-Tinytest.add('HTTP - publish - server - formatResult', function(test) { 
+Tinytest.add('http-publish - server - formatResult', function(test) { 
 
   var oldScope = {
     statusCode: 200,

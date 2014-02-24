@@ -5,7 +5,7 @@ function equals(a, b) {
 list = new Meteor.Collection('list');
 console.log('Client url: ' + Meteor.absoluteUrl('api'));
 
-Tinytest.add('HTTP - publish - client - test environment', function(test) {
+Tinytest.add('http-publish - client - test environment', function(test) {
   test.isTrue(typeof _publishHTTP === 'undefined', 'test environment initialized _publishHTTP');
   test.isTrue(typeof HTTP !== 'undefined', 'test environment not initialized HTTP');
   test.isTrue(typeof HTTP.publish !== 'undefined', 'test environment not initialized HTTP.publish');
@@ -14,7 +14,7 @@ Tinytest.add('HTTP - publish - client - test environment', function(test) {
 });
 
 
-Tinytest.addAsync('HTTP - publish - client - clearTest', function (test, onComplete) {
+Tinytest.addAsync('http-publish - client - clearTest', function (test, onComplete) {
   test.isTrue(true);
   Meteor.call('clearTest', function(err, result) {
     test.isTrue(result);
@@ -27,7 +27,7 @@ Tinytest.addAsync('HTTP - publish - client - clearTest', function (test, onCompl
 id = '';
 removedId = '';
 
-Tinytest.addAsync('HTTP - publish - client - get list', function (test, onComplete) {
+Tinytest.addAsync('http-publish - client - get list', function (test, onComplete) {
 
   HTTP.get(Meteor.absoluteUrl('api/list'), function(err, result) {
     // Test the length of array result
@@ -43,7 +43,7 @@ Tinytest.addAsync('HTTP - publish - client - get list', function (test, onComple
 
 });
 
-Tinytest.addAsync('HTTP - publish - client - put list', function (test, onComplete) {
+Tinytest.addAsync('http-publish - client - put list', function (test, onComplete) {
 
   test.isTrue(id !== '', 'No id is set?');
 
@@ -69,7 +69,7 @@ Tinytest.addAsync('HTTP - publish - client - put list', function (test, onComple
 });
 
 
-Tinytest.addAsync('HTTP - publish - client - insert/remove list', function (test, onComplete) {
+Tinytest.addAsync('http-publish - client - insert/remove list', function (test, onComplete) {
 
   // Insert a doc
   HTTP.post(Meteor.absoluteUrl('api/list'), {
@@ -89,7 +89,7 @@ Tinytest.addAsync('HTTP - publish - client - insert/remove list', function (test
 
 });
 
-Tinytest.addAsync('HTTP - publish - client - check removed', function (test, onComplete) {
+Tinytest.addAsync('http-publish - client - check removed', function (test, onComplete) {
 
   test.isTrue(removedId !== '', 'No removedId is set?');
 
@@ -103,7 +103,7 @@ Tinytest.addAsync('HTTP - publish - client - check removed', function (test, onC
 });
 
 
-Tinytest.addAsync('HTTP - publish - client - check findOne', function (test, onComplete) {
+Tinytest.addAsync('http-publish - client - check findOne', function (test, onComplete) {
 
   test.isTrue(id !== '', 'No id is set?');
 
