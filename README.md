@@ -123,4 +123,12 @@ Example: *(`json` is buildin)*
 ##Unpublish
 For `api` integrity theres added an `HTTP.unpublish` method that takes a collection or name of mount point to remove.
 
+##Custom Prefix
 
+To override the default `/api/` prefix, pass the `apiPrefix` option to `publish`.
+You must pass the same option with the same value to `unpublish` to correctly
+unpublish.
+
+##API Documentation
+
+[Here](api.md)

@@ -13,7 +13,6 @@ Tinytest.add('http-publish - client - test environment', function(test) {
   test.isTrue(typeof HTTP.publishFormats !== 'undefined', 'test environment not initialized HTTP.publishFormats');
 });
 
-
 Tinytest.addAsync('http-publish - client - clearTest', function (test, onComplete) {
   test.isTrue(true);
   Meteor.call('clearTest', function(err, result) {
@@ -22,7 +21,6 @@ Tinytest.addAsync('http-publish - client - clearTest', function (test, onComplet
   });
   test.isTrue(true);
 });
-
 
 id = '';
 removedId = '';
@@ -38,6 +36,41 @@ Tinytest.addAsync('http-publish - client - get list', function (test, onComplete
     test.equal(obj.text, 'OK', 'Didnt get the expected result');
     // Set the id for the next test
     id = obj._id;
+    onComplete();
+  });
+
+});
+
+Tinytest.addAsync('http-publish - client - get list from custom prefix', function (test, onComplete) {
+
+  // Now test the one we added with a custom prefix
+  HTTP.get(Meteor.absoluteUrl('api2/list'), function(err, result) {
+    // Test the length of array result
+    var len = result.data && result.data.length;
+    test.isTrue(!!len, 'Result was empty');
+    // Get the object
+    var obj = result.data && result.data[0] || {};
+    test.equal(obj.text, 'OK', 'Didnt get the expected result');
+    onComplete();
+  });
+
+});
+
+Tinytest.addAsync('http-publish - client - unmountCustom', function (test, onComplete) {
+  // Now unmount the methods with custom prefix
+  test.isTrue(true);
+  Meteor.call('unmountCustom', function(err, result) {
+    test.isTrue(result);
+    onComplete();
+  });
+  test.isTrue(true);
+});
+
+Tinytest.addAsync('http-publish - client - custom unmounted', function (test, onComplete) {
+
+  // Now test the one we added with a custom prefix
+  HTTP.get(Meteor.absoluteUrl('api2/list'), function(err, result) {
+    test.isTrue(!!err, "Should have received an error since we unmounted the custom rest points");
     onComplete();
   });
 
@@ -67,7 +100,6 @@ Tinytest.addAsync('http-publish - client - put list', function (test, onComplete
   });
 
 });
-
 
 Tinytest.addAsync('http-publish - client - insert/remove list', function (test, onComplete) {
 
@@ -101,7 +133,6 @@ Tinytest.addAsync('http-publish - client - check removed', function (test, onCom
   });
 
 });
-
 
 Tinytest.addAsync('http-publish - client - check findOne', function (test, onComplete) {
 

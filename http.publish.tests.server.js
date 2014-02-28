@@ -27,6 +27,10 @@ HTTP.publish(list, function() {
   return list.find();
 });
 
+// Test custom prefix, too
+HTTP.publish(list, function() {
+  return list.find();
+}, {apiPrefix: '/api2/'});
 
 Meteor.methods({
   clearTest: function() {
@@ -41,6 +45,11 @@ Meteor.methods({
     var count = list.find().count();
 
     return !!(count === 1);  
+  },
+  unmountCustom: function() {
+    console.log('Client called unmountCustom');
+    _publishHTTP.unpublish(list, {apiPrefix: '/api2/'});
+    return true;
   }
 });
 
@@ -120,7 +129,6 @@ Tinytest.add('http-publish - server - formatResult', function(test) {
   test.equal(result, '{"test":"ok"}', 'json formatHandler returned a bad result');
 
 });
-
 
 //Test API:
 //test.isFalse(v, msg)
