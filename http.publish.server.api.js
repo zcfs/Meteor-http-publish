@@ -235,15 +235,16 @@ HTTP.publishFormats = function httpPublishFormats(newHandlers) {
  * 
  * Publish only:
  * 
- * ```HTTP.publish('mypublish', func);```
+ * HTTP.publish('mypublish', func);
  * 
  * Publish and mount crud rest point for collection /api/myCollection:
  * 
- * ```HTTP.publish(myCollection, func);```
+ * HTTP.publish(myCollection, func);
  * 
  * Mount CRUD rest point for collection and publish none /api/myCollection:
  * 
- * ```HTTP.publish(myCollection);```
+ * HTTP.publish(myCollection);
+ * 
  */
 HTTP.publish = function httpPublish(/* name, func or collection, func */) {
 

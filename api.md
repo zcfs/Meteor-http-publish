@@ -87,17 +87,18 @@ __Usage:__
 
 Publish only:
 
-```HTTP.publish('mypublish', func);```
+HTTP.publish('mypublish', func);
 
 Publish and mount crud rest point for collection /api/myCollection:
 
-```HTTP.publish(myCollection, func);```
+HTTP.publish(myCollection, func);
 
 Mount CRUD rest point for collection and publish none /api/myCollection:
 
-```HTTP.publish(myCollection);```
+HTTP.publish(myCollection);
 
-> ```HTTP.publish = function httpPublish(``` [http.publish.server.api.js:248](http.publish.server.api.js#L248)
+
+> ```HTTP.publish = function httpPublish(``` [http.publish.server.api.js:249](http.publish.server.api.js#L249)
 
 
 -
@@ -124,6 +125,6 @@ __Returns__  *{undefined}*
 Unpublishes all HTTP methods that were published with the given name or 
 for the given collection. Call with no arguments to unpublish all.
 
-> ```HTTP.unpublish = _publishHTTP.unpublish;``` [http.publish.server.api.js:441](http.publish.server.api.js#L441)
+> ```HTTP.unpublish = _publishHTTP.unpublish;``` [http.publish.server.api.js:442](http.publish.server.api.js#L442)
 
 
