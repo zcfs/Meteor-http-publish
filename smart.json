@@ -1,13 +1,13 @@
 {
-  "name": "http-publish",
-  "description": "Adds HTTP server publish - HTTP.publish RESTful",
-  "homepage": "https://github.com/CollectionFS/Meteor-http-publish",
+	"name": "http-publish",
+	"description": "Adds HTTP server publish - HTTP.publish RESTful",
+	"homepage": "https://github.com/CollectionFS/Meteor-http-publish",
   "author": "Eric Dobbertin (https://github.com/aldeed), Morten Henriksen (https://github.com/raix)",
-  "version": "0.0.4",
-  "git": "https://github.com/CollectionFS/Meteor-http-publish.git",
-  "packages": {
-    "http-methods": {
-      "git": "https://github.com/CollectionFS/Meteor-http-methods.git"
-    }
-  }
+	"version": "0.0.5",
+	"git": "https://github.com/CollectionFS/Meteor-http-publish.git",
+	"packages": {
+		"http-methods": {
+			"git": "https://github.com/CollectionFS/Meteor-http-methods.git"
+		}
+	}
 }

@@ -1,4 +1,4 @@
-HTTP.publish [![Build Status](https://travis-ci.org/raix/Meteor-http-publish.png?branch=master)](https://travis-ci.org/raix/Meteor-http-publish) [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SMBQ4PFWUC842)
+HTTP.publish [![Build Status](https://travis-ci.org/CollectionFS/Meteor-http-publish.png?branch=master)](https://travis-ci.org/CollectionFS/Meteor-http-publish) [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SMBQ4PFWUC842)
 ============
 
 This package add the abillity to add `HTTP` server publish to your project. It's a server-side package only
@@ -123,4 +123,12 @@ Example: *(`json` is buildin)*
 ##Unpublish
 For `api` integrity theres added an `HTTP.unpublish` method that takes a collection or name of mount point to remove.
 
+##Custom Prefix
 
+To override the default `/api/` prefix, pass the `apiPrefix` option to `publish`.
+You must pass the same option with the same value to `unpublish` to correctly
+unpublish.
+
+##API Documentation
+
+[Here](api.md)

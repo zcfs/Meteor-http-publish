@@ -19,10 +19,20 @@ DELETE /note/:id
 
 _publishHTTP = {};
 
-var apiPrefix = '/api/';
+// Cache the names of all http methods we've published
+_publishHTTP.currentlyPublished = [];
 
-// Create a nice scope for the publish method
-_publishHTTP.getPublishScope = function(scope) {
+var defaultAPIPrefix = '/api/';
+
+/**
+ * @method _publishHTTP.getPublishScope
+ * @private
+ * @param {Object} scope
+ * @returns {httpPublishGetPublishScope.publishScope}
+ * 
+ * Creates a nice scope for the publish method
+ */
+_publishHTTP.getPublishScope = function httpPublishGetPublishScope(scope) {
   var publishScope = {};
   publishScope.userId = scope.userId;
   publishScope.params = scope.params;
@@ -35,16 +45,31 @@ _publishHTTP.getPublishScope = function(scope) {
 
 _publishHTTP.formatHandlers = {};
 
-// Format the output into json
-_publishHTTP.formatHandlers.json = function(result) {
+/**
+ * @method _publishHTTP.formatHandlers.json
+ * @private
+ * @param {Object} result - The result object
+ * @returns {String} JSON
+ * 
+ * Formats the output into JSON and sets the appropriate content type on `this`
+ */
+_publishHTTP.formatHandlers.json = function httpPublishJSONFormatHandler(result) {
   // Set the method scope content type to json
   this.setContentType('application/json');
   // Return EJSON string
   return EJSON.stringify(result);
 };
 
-// Format the result into the format selected by querystring eg. "&format=json"
-_publishHTTP.formatResult = function(result, scope) {
+/**
+ * @method _publishHTTP.formatResult
+ * @private
+ * @param {Object} result - The result object
+ * @param {Object} scope
+ * @returns {Any} The formatted result
+ * 
+ * Formats the result into the format selected by querystring eg. "&format=json"
+ */
+_publishHTTP.formatResult = function httpPublishFormatResult(result, scope) {
 
   // Get the format in lower case and default to json
   var format = (scope && scope.query && scope.query.format || 'json').toLowerCase();
@@ -71,19 +96,36 @@ _publishHTTP.formatResult = function(result, scope) {
     return formatHandler.apply(scope, [result]);
   } catch(err) {
     scope.setStatusCode(500);
-    return '{"error":"Format handler for: `' + format + '` Error: ' + err.message + '"}'
+    return '{"error":"Format handler for: `' + format + '` Error: ' + err.message + '"}';
   }
 };
 
-// Respond with error message in the expected format
-_publishHTTP.error = function(statusCode, message, scope) {
+/**
+ * @method _publishHTTP.error
+ * @private
+ * @param {String} statusCode - The status code
+ * @param {String} message - The message
+ * @param {Object} scope
+ * @returns {Any} The formatted result
+ * 
+ * Responds with error message in the expected format
+ */
+_publishHTTP.error = function httpPublishError(statusCode, message, scope) {
   var result = _publishHTTP.formatResult(message, scope);
   scope.setStatusCode(statusCode);
   return result;
 };
 
-// We use the ddp connection handlers allready setup and secured
-_publishHTTP.getMethodHandler = function(collection, methodName) {
+/**
+ * @method _publishHTTP.getMethodHandler
+ * @private
+ * @param {Meteor.Collection} collection - The Meteor.Collection instance
+ * @param {String} methodName - The method name
+ * @returns {Function} The server method
+ * 
+ * Returns the DDP connection handler, already setup and secured
+ */
+_publishHTTP.getMethodHandler = function httpPublishGetMethodHandler(collection, methodName) {
   if (collection instanceof Meteor.Collection) {
     if (collection._connection && collection._connection.method_handlers) {
       return collection._connection.method_handlers[collection._prefix + methodName];
@@ -93,11 +135,75 @@ _publishHTTP.getMethodHandler = function(collection, methodName) {
   } else {
     throw new Error('_publishHTTP.getMethodHandler expected a collection');
   }
-}
+};
 
-// Set format handlers
-/*
-  HTTP.publishFormats({
+/**
+ * @method _publishHTTP.unpublishList
+ * @private
+ * @param {Array} names - List of method names to unpublish
+ * @returns {undefined}
+ * 
+ * Unpublishes all HTTP methods that have names matching the given list.
+ */
+_publishHTTP.unpublishList = function httpPublishUnpublishList(names) {
+  if (!names.length) {
+    return;
+  }
+  
+  // Carry object for methods
+  var methods = {};
+
+  // Unpublish the rest points by setting them to false
+  for (var i = 0, ln = names.length; i < ln; i++) {
+    methods[names[i]] = false;
+  }
+
+  HTTP.methods(methods);
+  
+  // Remove the names from our list of currently published methods
+  _publishHTTP.currentlyPublished = _.difference(_publishHTTP.currentlyPublished, names);
+};
+
+/**
+ * @method _publishHTTP.unpublish
+ * @private
+ * @param {String|Meteor.Collection} [name] - The method name or collection
+ * @param {Object} [options]
+ * @param {Object} [options.apiPrefix='/api/'] - Prefix used when originally publishing the method, if passing a collection.
+ * @returns {undefined}
+ * 
+ * Unpublishes all HTTP methods that were published with the given name or 
+ * for the given collection. Call with no arguments to unpublish all.
+ */
+_publishHTTP.unpublish = function httpPublishUnpublish(/* name or collection, options */) {
+  var options = arguments[1] || {};
+  var apiPrefix = options.apiPrefix || defaultAPIPrefix;
+  
+  // Determine what method name we're unpublishing
+  var name = (arguments[0] instanceof Meteor.Collection) ?
+          apiPrefix + arguments[0]._name : arguments[0];
+          
+  // Unpublish name and name/id
+  if (name && name.length) {
+    _publishHTTP.unpublishList([name, name + '/:id']);
+  } 
+  
+  // If no args, unpublish all
+  else {
+    _publishHTTP.unpublishList(_publishHTTP.currentlyPublished);
+  }
+  
+};
+
+/**
+ * @method HTTP.publishFormats
+ * @public
+ * @param {Object} newHandlers
+ * @returns {undefined}
+ * 
+ * Add publish formats. Example:
+ ```js
+ HTTP.publishFormats({
 
     json: function(inputObject) {
       // Set the method scope content type to json
@@ -107,25 +213,40 @@ _publishHTTP.getMethodHandler = function(collection, methodName) {
     }
 
   });
-*/
-HTTP.publishFormats = function(newHandlers) {
+ ```
+ */
+HTTP.publishFormats = function httpPublishFormats(newHandlers) {
   _.extend(_publishHTTP.formatHandlers, newHandlers);
 };
 
-// Publish restpoint mounted on "name" with data from func (cursor)
-HTTP.publish = function(/* name, func or collection, func */) {
-  // Usage:
-  // Publish only
-  // HTTP.publish('mypublish', func);
-  // String Function [Object]
-
-  // Publish and mount crud rest point for collection /api/myCollection
-  // HTTP.publish(myCollection, func);
-  // Meteor.Collection Function [Object]
-
-  // Mount crud rest point for collection and publish none /api/myCollection
-  // HTTP.publish(myCollection);
-  // Meteor.Collection [Object]
+/**
+ * @method HTTP.publish
+ * @public
+ * @param {String|Meteor.Collection} item - Name or a Meteor.Collection instance
+ * @param {Function} [func] - The publish function
+ * @param {Object} [options]
+ * @param {String} [options.apiPrefix='/api/'] - Prefix to use, e.g. '/rest/'
+ * @returns {undefined}
+ * @todo this should use options argument instead of optional args
+ * 
+ * Publish restpoint mounted on "name" with data (cursor) returned from func.
+ * 
+ * __Usage:__
+ * 
+ * Publish only:
+ * 
+ * HTTP.publish('mypublish', func);
+ * 
+ * Publish and mount crud rest point for collection /api/myCollection:
+ * 
+ * HTTP.publish(myCollection, func);
+ * 
+ * Mount CRUD rest point for collection and publish none /api/myCollection:
+ * 
+ * HTTP.publish(myCollection);
+ * 
+ */
+HTTP.publish = function httpPublish(/* name, func or collection, func */) {
 
   // If not publish only then we are served a Meteor.Collection
   var collection = (arguments[0] instanceof Meteor.Collection)? arguments[0]: null;
@@ -134,7 +255,11 @@ HTTP.publish = function(/* name, func or collection, func */) {
   var func = (typeof arguments[1] === 'function')? arguments[1]: null;
 
   // Second or third parametre is optional options
-  var options = (func)? arguments[2] : arguments[1];
+  var options = (func) ? arguments[2] : arguments[1];
+  options = options || {};
+  
+  // Determine API prefix
+  var apiPrefix = options.apiPrefix || defaultAPIPrefix;
 
   // Rig the methods for the CRUD interface
   var methods = {};
@@ -295,24 +420,23 @@ HTTP.publish = function(/* name, func or collection, func */) {
 
   }
 
+  // Publish the methods
   HTTP.methods(methods);
+  
+  // Mark these method names as currently published
+  _publishHTTP.currentlyPublished = _.union(_publishHTTP.currentlyPublished, _.keys(methods));
+  
 }; // EO Publish
 
-
-// The collection can be unpublished from HTTP
-HTTP.unpublish = function(/* name or collection */) {
-  // set collection if found
-  // Mounts collection on eg. /api/mycollection and /api/mycollection/:id
-  // or at name
-  var name = (arguments[0] instanceof Meteor.Collection)?
-          apiPrefix + arguments[0]._name: arguments[0];
-
-  // Carry object for methods
-  var methods = {};
-
-  // Unpublish the rest points by setting them to false
-  methods[name] = false;
-  methods[name + '/:id'] = false;
-
-  HTTP.methods(methods);
-};
+/**
+ * @method HTTP.unpublish
+ * @public
+ * @param {String|Meteor.Collection} [name] - The method name or collection
+ * @param {Object} [options]
+ * @param {Object} [options.apiPrefix='/api/'] - Prefix used when originally publishing the method, if passing a collection.
+ * @returns {undefined}
+ * 
+ * Unpublishes all HTTP methods that were published with the given name or 
+ * for the given collection. Call with no arguments to unpublish all.
+ */
+HTTP.unpublish = _publishHTTP.unpublish;

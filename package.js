@@ -1,4 +1,5 @@
 Package.describe({
+    name: 'http-publish',
     summary: 'Adds HTTP.publish and HTTP.unpublish RESTful'
 });
 
