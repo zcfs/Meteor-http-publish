@@ -7,7 +7,8 @@
 	"git": "https://github.com/CollectionFS/Meteor-http-publish.git",
 	"packages": {
 		"http-methods": {
-			"git": "https://github.com/CollectionFS/Meteor-http-methods.git"
+			"git": "https://github.com/CollectionFS/Meteor-http-methods.git",
+                        "branch": "master"
 		}
 	}
 }
