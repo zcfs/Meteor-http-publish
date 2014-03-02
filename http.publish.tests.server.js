@@ -14,8 +14,6 @@ Tinytest.add('http-publish - server - test environment', function(test) {
 list = new Meteor.Collection('list');
 console.log('Server url: ' + Meteor.absoluteUrl());
 
-
-
 list.allow({
   insert: function() { return true; },
   update: function() { return true; },
@@ -23,14 +21,14 @@ list.allow({
 });
 
 console.log('Rig publish');
-HTTP.publish(list, function() {
+HTTP.publish({collection: list}, function() {
   return list.find();
 });
 
 // Test custom prefix, too
-HTTP.publish(list, function() {
+HTTP.publish({collection: list, name: '/api2/list'}, function() {
   return list.find();
-}, {apiPrefix: '/api2/'});
+});
 
 Meteor.methods({
   clearTest: function() {
@@ -48,7 +46,7 @@ Meteor.methods({
   },
   unmountCustom: function() {
     console.log('Client called unmountCustom');
-    _publishHTTP.unpublish(list, {apiPrefix: '/api2/'});
+    _publishHTTP.unpublish('/api2/list');
     return true;
   }
 });

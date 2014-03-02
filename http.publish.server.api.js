@@ -65,14 +65,15 @@ _publishHTTP.formatHandlers.json = function httpPublishJSONFormatHandler(result)
  * @private
  * @param {Object} result - The result object
  * @param {Object} scope
+ * @param {String} [defaultFormat='json'] - Default format to use if format is not in query string.
  * @returns {Any} The formatted result
  * 
  * Formats the result into the format selected by querystring eg. "&format=json"
  */
-_publishHTTP.formatResult = function httpPublishFormatResult(result, scope) {
+_publishHTTP.formatResult = function httpPublishFormatResult(result, scope, defaultFormat) {
 
   // Get the format in lower case and default to json
-  var format = (scope && scope.query && scope.query.format || 'json').toLowerCase();
+  var format = scope && scope.query && scope.query.format || defaultFormat || 'json';
 
   // Set the format handler found
   var formatHandlerFound = !!(typeof _publishHTTP.formatHandlers[format] === 'function');
@@ -168,20 +169,16 @@ _publishHTTP.unpublishList = function httpPublishUnpublishList(names) {
  * @method _publishHTTP.unpublish
  * @private
  * @param {String|Meteor.Collection} [name] - The method name or collection
- * @param {Object} [options]
- * @param {Object} [options.apiPrefix='/api/'] - Prefix used when originally publishing the method, if passing a collection.
  * @returns {undefined}
  * 
  * Unpublishes all HTTP methods that were published with the given name or 
  * for the given collection. Call with no arguments to unpublish all.
  */
 _publishHTTP.unpublish = function httpPublishUnpublish(/* name or collection, options */) {
-  var options = arguments[1] || {};
-  var apiPrefix = options.apiPrefix || defaultAPIPrefix;
   
   // Determine what method name we're unpublishing
   var name = (arguments[0] instanceof Meteor.Collection) ?
-          apiPrefix + arguments[0]._name : arguments[0];
+          defaultAPIPrefix + arguments[0]._name : arguments[0];
           
   // Unpublish name and name/id
   if (name && name.length) {
@@ -222,76 +219,86 @@ HTTP.publishFormats = function httpPublishFormats(newHandlers) {
 /**
  * @method HTTP.publish
  * @public
- * @param {String|Meteor.Collection} item - Name or a Meteor.Collection instance
- * @param {Function} [func] - The publish function
- * @param {Object} [options]
- * @param {String} [options.apiPrefix='/api/'] - Prefix to use, e.g. '/rest/'
+ * @param {Object} options
+ * @param {String} [name] - Restpoint name (url prefix). Optional if `collection` is passed. Will mount on `/api/collectionName` by default.
+ * @param {Meteor.Collection} [collection] - Meteor.Collection instance. Required for all restpoints except collectionGet
+ * @param {String} [options.defaultFormat='json'] - Format to use for responses when `format` is not found in the query string.
+ * @param {String} [options.collectionGet=true] - Add GET restpoint for collection? Requires a publish function.
+ * @param {String} [options.collectionPost=true] - Add POST restpoint for adding documents to the collection?
+ * @param {String} [options.documentGet=true] - Add GET restpoint for documents in collection? Requires a publish function.
+ * @param {String} [options.documentPut=true] - Add PUT restpoint for updating a document in the collection?
+ * @param {String} [options.documentDelete=true] - Add DELETE restpoint for deleting a document in the collection?
+ * @param {Function} [publishFunc] - A publish function. Required to mount GET restpoints.
  * @returns {undefined}
  * @todo this should use options argument instead of optional args
  * 
- * Publish restpoint mounted on "name" with data (cursor) returned from func.
+ * Publishes one or more restpoints, mounted on "name" ("/api/collectionName/"
+ * by default). The GET restpoints are subscribed to the document set (cursor)
+ * returned by the publish function you supply. The other restpoints forward
+ * requests to Meteor's built-in DDP methods (insert, update, remove), meaning
+ * that full allow/deny security is automatic.
  * 
  * __Usage:__
  * 
  * Publish only:
  * 
- * HTTP.publish('mypublish', func);
+ * HTTP.publish({name: 'mypublish'}, publishFunc);
  * 
  * Publish and mount crud rest point for collection /api/myCollection:
  * 
- * HTTP.publish(myCollection, func);
+ * HTTP.publish({collection: myCollection}, publishFunc);
  * 
- * Mount CRUD rest point for collection and publish none /api/myCollection:
+ * Mount CUD rest point for collection and documents without GET:
  * 
- * HTTP.publish(myCollection);
+ * HTTP.publish({collection: myCollection});
  * 
  */
-HTTP.publish = function httpPublish(/* name, func or collection, func */) {
-
-  // If not publish only then we are served a Meteor.Collection
-  var collection = (arguments[0] instanceof Meteor.Collection)? arguments[0]: null;
-
-  // Second parametre could be a function
-  var func = (typeof arguments[1] === 'function')? arguments[1]: null;
-
-  // Second or third parametre is optional options
-  var options = (func) ? arguments[2] : arguments[1];
-  options = options || {};
+HTTP.publish = function httpPublish(options, publishFunc) {
+  options = _.extend({
+    name: null,
+    collection: null,
+    defaultFormat: null,
+    collectionGet: true,
+    collectionPost: true,
+    documentGet: true,
+    documentPut: true,
+    documentDelete: true
+  }, options || {});
   
-  // Determine API prefix
-  var apiPrefix = options.apiPrefix || defaultAPIPrefix;
+  var collection = options.collection;
+  
+  // Use provided name or build one
+  var name = (typeof options.name === "string") ? options.name : defaultAPIPrefix + collection._name;
+
+  // Make sure we have a name
+  if (typeof name !== "string") {
+    throw new Error('HTTP.publish expected a collection or name option');
+  }
+  
+  var defaultFormat = options.defaultFormat;
 
   // Rig the methods for the CRUD interface
   var methods = {};
-
-  // Mounts collection on eg. /api/mycollection and /api/mycollection/:id
-  // or a user specified name - HTTP.methods will throw error if name is invalid
-  var name = (collection) ? apiPrefix + collection._name : arguments[0];
-
-  // Make sure we are handed a Meteor.Collection
-  if (!name) {
-    throw new Error('HTTP.publish expected a collection or access point in first parametre');
-  }
 
   // console.log('HTTP restpoint: ' + name);
 
   // list and create
   methods[name] = {};
 
-  if (func) {
+  if (options.collectionGet && publishFunc) {
     // Return the published documents
     methods[name].get = function(data) {
       // Format the scope for the publish method
       var publishScope = _publishHTTP.getPublishScope(this);
       // Get the publish cursor
-      var cursor = func.apply(publishScope, [data]);
+      var cursor = publishFunc.apply(publishScope, [data]);
 
       // Check if its a cursor
       if (cursor && cursor.fetch) {
         // Fetch the data fron cursor
         var result = cursor.fetch();
         // Return the data
-        return _publishHTTP.formatResult(result, this);
+        return _publishHTTP.formatResult(result, this, defaultFormat);
       } else {
         // We didnt get any
         return _publishHTTP.error(200, [], this);
@@ -301,26 +308,28 @@ HTTP.publish = function httpPublish(/* name, func or collection, func */) {
 
   if (collection) {
     // If we have a collection then add insert method
-    methods[name].post = function(data) {
-      var insertMethodHandler = _publishHTTP.getMethodHandler(collection, 'insert');
-      // Make sure that _id isset else create a Meteor id
-      data._id = data._id || Random.id();
-      // Create the document
-      try {
-        // We should be passed a document in data
-        insertMethodHandler.apply(this, [data]);
-        // Return the data
-        return _publishHTTP.formatResult({ _id: data._id }, this);
-      } catch(err) {
-        // This would be a Meteor.error?
-        return _publishHTTP.error(err.error, { error: err.message }, this);
-      }
-    };
+    if (options.collectionPost) {
+      methods[name].post = function(data) {
+        var insertMethodHandler = _publishHTTP.getMethodHandler(collection, 'insert');
+        // Make sure that _id isset else create a Meteor id
+        data._id = data._id || Random.id();
+        // Create the document
+        try {
+          // We should be passed a document in data
+          insertMethodHandler.apply(this, [data]);
+          // Return the data
+          return _publishHTTP.formatResult({ _id: data._id }, this, defaultFormat);
+        } catch(err) {
+          // This would be a Meteor.error?
+          return _publishHTTP.error(err.error, { error: err.message }, this);
+        }
+      };
+    }
 
     // We also add the findOne, update and remove methods
     methods[name + '/:id'] = {};
     
-    if (func) {
+    if (options.documentGet && publishFunc) {
       // We have to have a publish method inorder to publish id? The user could
       // just write a publish all if needed - better to make this explicit
       methods[name + '/:id'].get = function(data) {
@@ -334,7 +343,7 @@ HTTP.publish = function httpPublish(/* name, func or collection, func */) {
           var publishScope = _publishHTTP.getPublishScope(this);
 
           // Get the publish cursor
-          var cursor = func.apply(publishScope, [data]);
+          var cursor = publishFunc.apply(publishScope, [data]);
 
           // Result will contain the document if found
           var result;
@@ -350,7 +359,7 @@ HTTP.publish = function httpPublish(/* name, func or collection, func */) {
 
           // If the document is found the return
           if (result) {
-            return _publishHTTP.formatResult(result, this);
+            return _publishHTTP.formatResult(result, this, defaultFormat);
           } else {
             // We do a check to see if the doc id exists
             var exists = collection.findOne({ _id: mongoId });
@@ -370,53 +379,57 @@ HTTP.publish = function httpPublish(/* name, func or collection, func */) {
       };
     }
 
-    methods[name + '/:id'].put = function(data) {
-      // Get the mongoId
-      var mongoId = this.params.id;
+    if (options.documentPut) {
+      methods[name + '/:id'].put = function(data) {
+        // Get the mongoId
+        var mongoId = this.params.id;
 
-      // We would allways expect a string but it could be empty
-      if (mongoId !== '') {
+        // We would allways expect a string but it could be empty
+        if (mongoId !== '') {
 
-        var updateMethodHandler = _publishHTTP.getMethodHandler(collection, 'update');
-        // Create the document
-        try {
-          // We should be passed a document in data
-          updateMethodHandler.apply(this, [{ _id: mongoId }, data]);
-          // Return the data
-          return _publishHTTP.formatResult({ _id: mongoId }, this);
-        } catch(err) {
-          // This would be a Meteor.error?
-          return _publishHTTP.error(err.error, { error: err.message }, this);
-        }
-        
-      } else {
-        return _publishHTTP.error(400, { error: 'Method expected a document id' }, this);
-      }      
-    };
+          var updateMethodHandler = _publishHTTP.getMethodHandler(collection, 'update');
+          // Create the document
+          try {
+            // We should be passed a document in data
+            updateMethodHandler.apply(this, [{ _id: mongoId }, data]);
+            // Return the data
+            return _publishHTTP.formatResult({ _id: mongoId }, this, defaultFormat);
+          } catch(err) {
+            // This would be a Meteor.error?
+            return _publishHTTP.error(err.error, { error: err.message }, this);
+          }
 
-    methods[name + '/:id'].delete = function(data) {
-       // Get the mongoId
-      var mongoId = this.params.id;
+        } else {
+          return _publishHTTP.error(400, { error: 'Method expected a document id' }, this);
+        }      
+      };
+    }
 
-      // We would allways expect a string but it could be empty
-      if (mongoId !== '') {
+    if (options.documentDelete) {
+      methods[name + '/:id'].delete = function(data) {
+         // Get the mongoId
+        var mongoId = this.params.id;
 
-        var removeMethodHandler = _publishHTTP.getMethodHandler(collection, 'remove');
-        // Create the document
-        try {
-          // We should be passed a document in data
-          removeMethodHandler.apply(this, [{ _id: mongoId }]);
-          // Return the data
-          return _publishHTTP.formatResult({ _id: mongoId }, this);
-        } catch(err) {
-          // This would be a Meteor.error?
-          return _publishHTTP.error(err.error, { error: err.message }, this);
-        }
-        
-      } else {
-        return _publishHTTP.error(400, { error: 'Method expected a document id' }, this);
-      }     
-    };
+        // We would allways expect a string but it could be empty
+        if (mongoId !== '') {
+
+          var removeMethodHandler = _publishHTTP.getMethodHandler(collection, 'remove');
+          // Create the document
+          try {
+            // We should be passed a document in data
+            removeMethodHandler.apply(this, [{ _id: mongoId }]);
+            // Return the data
+            return _publishHTTP.formatResult({ _id: mongoId }, this, defaultFormat);
+          } catch(err) {
+            // This would be a Meteor.error?
+            return _publishHTTP.error(err.error, { error: err.message }, this);
+          }
+
+        } else {
+          return _publishHTTP.error(400, { error: 'Method expected a document id' }, this);
+        }     
+      };
+    }
 
   }
 
@@ -432,8 +445,6 @@ HTTP.publish = function httpPublish(/* name, func or collection, func */) {
  * @method HTTP.unpublish
  * @public
  * @param {String|Meteor.Collection} [name] - The method name or collection
- * @param {Object} [options]
- * @param {Object} [options.apiPrefix='/api/'] - Prefix used when originally publishing the method, if passing a collection.
  * @returns {undefined}
  * 
  * Unpublishes all HTTP methods that were published with the given name or 

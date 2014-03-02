@@ -53,57 +53,85 @@ return EJSON.stringify(inputObject);
 });
 ```
 
-> ```HTTP.publishFormats = function httpPublishFormats(newHandlers) { ...``` [http.publish.server.api.js:218](http.publish.server.api.js#L218)
+> ```HTTP.publishFormats = function httpPublishFormats(newHandlers) { ...``` [http.publish.server.api.js:215](http.publish.server.api.js#L215)
 
 
 -
 
-### <a name="HTTP.publish"></a>*http*.publish(item, [func], [options])&nbsp;&nbsp;<sub><i>Server</i></sub> ###
+### <a name="HTTP.publish"></a>*http*.publish(options, [name], [collection], [publishFunc])&nbsp;&nbsp;<sub><i>Server</i></sub> ###
 
 *This method __publish__ is defined in `HTTP`*
 
 __Arguments__
 
-* __item__ *{String|[Meteor.Collection](#Meteor.Collection)}*  
+* __options__ *{Object}*  
+    * __defaultFormat__ *{String}*  (Optional, Default = 'json')
 
- Name or a Meteor.Collection instance
+     Format to use for responses when `format` is not found in the query string.
 
-* __func__ *{Function}*  (Optional)
+    * __collectionGet__ *{String}*  (Optional, Default = true)
 
- The publish function
+     Add GET restpoint for collection? Requires a publish function.
 
-* __options__ *{Object}*  (Optional)
-    * __apiPrefix__ *{String}*  (Optional, Default = '/api/')
+    * __collectionPost__ *{String}*  (Optional, Default = true)
 
-     Prefix to use, e.g. '/rest/'
+     Add POST restpoint for adding documents to the collection?
+
+    * __documentGet__ *{String}*  (Optional, Default = true)
+
+     Add GET restpoint for documents in collection? Requires a publish function.
+
+    * __documentPut__ *{String}*  (Optional, Default = true)
+
+     Add PUT restpoint for updating a document in the collection?
+
+    * __documentDelete__ *{String}*  (Optional, Default = true)
+
+     Add DELETE restpoint for deleting a document in the collection?
+
+* __name__ *{String}*  (Optional)
+
+ Restpoint name (url prefix). Optional if `collection` is passed. Will mount on `/api/collectionName` by default.
+
+* __collection__ *{[Meteor.Collection](#Meteor.Collection)}*  (Optional)
+
+ Meteor.Collection instance. Required for all restpoints except collectionGet
+
+* __publishFunc__ *{Function}*  (Optional)
+
+ A publish function. Required to mount GET restpoints.
 
 
 __Returns__  *{undefined}*
 
 
-Publish restpoint mounted on "name" with data (cursor) returned from func.
+Publishes one or more restpoints, mounted on "name" ("/api/collectionName/"
+by default). The GET restpoints are subscribed to the document set (cursor)
+returned by the publish function you supply. The other restpoints forward
+requests to Meteor's built-in DDP methods (insert, update, remove), meaning
+that full allow/deny security is automatic.
 
 __Usage:__
 
 Publish only:
 
-HTTP.publish('mypublish', func);
+HTTP.publish({name: 'mypublish'}, publishFunc);
 
 Publish and mount crud rest point for collection /api/myCollection:
 
-HTTP.publish(myCollection, func);
+HTTP.publish({collection: myCollection}, publishFunc);
 
-Mount CRUD rest point for collection and publish none /api/myCollection:
+Mount CUD rest point for collection and documents without GET:
 
-HTTP.publish(myCollection);
+HTTP.publish({collection: myCollection});
 
 
-> ```HTTP.publish = function httpPublish(``` [http.publish.server.api.js:249](http.publish.server.api.js#L249)
+> ```HTTP.publish = function httpPublish(options, publishFunc) { ...``` [http.publish.server.api.js:256](http.publish.server.api.js#L256)
 
 
 -
 
-### <a name="HTTP.unpublish"></a>*http*.unpublish([name], [options])&nbsp;&nbsp;<sub><i>Server</i></sub> ###
+### <a name="HTTP.unpublish"></a>*http*.unpublish([name])&nbsp;&nbsp;<sub><i>Server</i></sub> ###
 
 *This method __unpublish__ is defined in `HTTP`*
 
@@ -113,11 +141,6 @@ __Arguments__
 
  The method name or collection
 
-* __options__ *{Object}*  (Optional)
-    * __apiPrefix__ *{Object}*  (Optional, Default = '/api/')
-
-     Prefix used when originally publishing the method, if passing a collection.
-
 
 __Returns__  *{undefined}*
 
@@ -125,6 +148,6 @@ __Returns__  *{undefined}*
 Unpublishes all HTTP methods that were published with the given name or 
 for the given collection. Call with no arguments to unpublish all.
 
-> ```HTTP.unpublish = _publishHTTP.unpublish;``` [http.publish.server.api.js:442](http.publish.server.api.js#L442)
+> ```HTTP.unpublish = _publishHTTP.unpublish;``` [http.publish.server.api.js:453](http.publish.server.api.js#L453)
 
 

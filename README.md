@@ -1,7 +1,7 @@
 HTTP.publish [![Build Status](https://travis-ci.org/CollectionFS/Meteor-http-publish.png?branch=master)](https://travis-ci.org/CollectionFS/Meteor-http-publish) [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SMBQ4PFWUC842)
 ============
 
-This package add the abillity to add `HTTP` server publish to your project. It's a server-side package only
+This package add the ability to add `HTTP` server publish to your project. It's a server-side package only.
 
 ##Usage
 HTTP.publish creates a http crud restpoint for a collection *- only one cursor is allowed pr. publish*
@@ -25,7 +25,7 @@ If handed a collection and a publish function the HTTP.publish will mount on fol
   myCollection = new Meteor.Collection('list');
 
   // Add access points for `GET`, `POST`, `PUT`, `DELETE`
-  HTTP.publish(myCollection, function(data) {
+  HTTP.publish({collection: myCollection}, function(data) {
     // this.userId, this.query, this.params
     return myCollection.find({});
   });
@@ -39,7 +39,7 @@ If handed a mount name and a publish function the HTTP.publish will mount:
   myCollection = new Meteor.Collection('list');
 
   // Add access points for `GET`
-  HTTP.publish('mylist', function(data) {
+  HTTP.publish({name: 'mylist'}, function(data) {
     // this.userId, this.query, this.params
     return myCollection.find({});
   });
@@ -55,12 +55,11 @@ If handed a collection only the HTTP.publish will mount:
   myCollection = new Meteor.Collection('list');
 
   // Add access points for `POST`, `PUT`, `DELETE`
-  HTTP.publish(myCollection);
+  HTTP.publish({collection: myCollection});
 ```
 
 ##Publish scope
 The publish scope contains different kinds of inputs. We can also get user details if logged in.
-
 
 * `this.userId` The user whos id and token was used to run this method, if set/found
 * `this.query` - query params `?token=1` -> { token: 1 }
@@ -79,7 +78,7 @@ From the client:
 
 HTTP Server method:
 ```js
-  HTTP.publish(myCollection, function(data) {
+  HTTP.publish({collection: myCollection}, function(data) {
     // data === { foo: 'bar' }
   });
 ```
@@ -122,12 +121,6 @@ Example: *(`json` is buildin)*
 
 ##Unpublish
 For `api` integrity theres added an `HTTP.unpublish` method that takes a collection or name of mount point to remove.
-
-##Custom Prefix
-
-To override the default `/api/` prefix, pass the `apiPrefix` option to `publish`.
-You must pass the same option with the same value to `unpublish` to correctly
-unpublish.
 
 ##API Documentation
 
