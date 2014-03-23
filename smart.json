@@ -6,6 +6,9 @@
 	"version": "0.0.8",
 	"git": "https://github.com/CollectionFS/Meteor-http-publish.git",
 	"packages": {
-		"http-methods": {}
+		"http-methods": {
+			"git": "https://github.com/CollectionFS/Meteor-http-methods.git",
+			"branch": "master"
+		}
 	}
 }
