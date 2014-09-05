@@ -1,15 +1,17 @@
 Package.describe({
-    name: 'http-publish',
-    summary: 'Adds HTTP.publish and HTTP.unpublish RESTful'
+  name: 'cfs:http-publish',
+  version: '0.0.0',
+  summary: 'Adds HTTP.publish and HTTP.unpublish RESTful'
 });
 
 Package.on_use(function(api) {
-  'use strict';
+  api.versionsFrom('METEOR@0.9.1');
+
   api.use(['webapp', 'underscore', 'ejson', 'random'], 'server');
 
-  api.use('http-methods');
+  api.use('cfs:http-methods@0.0.24');
 
-  api.imply && api.imply('http-methods');
+  api.imply && api.imply('cfs:http-methods');
 
   api.export && api.export('_publishHTTP', { testOnly: true });
 
@@ -19,7 +21,7 @@ Package.on_use(function(api) {
 });
 
 Package.on_test(function (api) {
-  api.use('http-publish', ['client', 'server']);
+  api.use('cfs:http-publish', ['client', 'server']);
   api.use('test-helpers', ['client', 'server']);
   api.use('http', 'client');
 
