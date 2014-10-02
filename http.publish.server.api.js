@@ -256,6 +256,7 @@ HTTP.publishFormats = function httpPublishFormats(newHandlers) {
 HTTP.publish = function httpPublish(options, publishFunc) {
   options = _.extend({
     name: null,
+    auth: null,
     collection: null,
     defaultFormat: null,
     collectionGet: true,
@@ -431,6 +432,16 @@ HTTP.publish = function httpPublish(options, publishFunc) {
       };
     }
 
+  }
+
+  // Authenticate with our own auth method: https://github.com/CollectionFS/Meteor-http-methods#authentication
+  if (options.auth) {
+    if (methods[name]) {
+      methods[name].auth = options.auth;
+    }
+    if (methods[name + '/:id']) {
+      methods[name + '/:id'].auth = options.auth;
+    }
   }
 
   // Publish the methods
