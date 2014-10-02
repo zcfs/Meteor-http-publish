@@ -349,13 +349,15 @@ HTTP.publish = function httpPublish(options, publishFunc) {
           var result;
 
           // Check to see if document is in published cursor
-          cursor.forEach(function(doc) {
-            if (!result) {
-              if (doc._id === mongoId) {
-                result = doc;
+          if (cursor) {
+            cursor.forEach(function(doc) {
+              if (!result) {
+                if (doc._id === mongoId) {
+                  result = doc;
+                }
               }
-            }
-          });
+            });
+          }
 
           // If the document is found the return
           if (result) {
