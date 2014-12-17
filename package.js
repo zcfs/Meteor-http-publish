@@ -1,7 +1,7 @@
 Package.describe({
   git: 'https://github.com/CollectionFS/Meteor-http-publish.git',
   name: 'cfs:http-publish',
-  version: '0.0.0',
+  version: '0.0.11',
   summary: 'Adds HTTP.publish and HTTP.unpublish RESTful'
 });
 
