@@ -10,7 +10,7 @@ Package.onUse(function(api) {
 
   api.use(['webapp', 'underscore', 'ejson', 'random'], 'server');
 
-  api.use('cfs:http-methods@0.0.25');
+  api.use('cfs:http-methods@0.0.26');
 
   api.imply && api.imply('cfs:http-methods');
 
