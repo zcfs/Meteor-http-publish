@@ -1,11 +1,12 @@
 Package.describe({
+  git: 'https://github.com/CollectionFS/Meteor-http-publish.git',
   name: 'cfs:http-publish',
   version: '0.0.0',
   summary: 'Adds HTTP.publish and HTTP.unpublish RESTful'
 });
 
-Package.on_use(function(api) {
-  api.versionsFrom('METEOR@0.9.1');
+Package.onUse(function(api) {
+  api.versionsFrom('1.0');
 
   api.use(['webapp', 'underscore', 'ejson', 'random'], 'server');
 
@@ -15,12 +16,12 @@ Package.on_use(function(api) {
 
   api.export && api.export('_publishHTTP', { testOnly: true });
 
-  api.add_files('http.publish.client.api.js', 'client');
-  api.add_files('http.publish.server.api.js', 'server');
+  api.addFiles('http.publish.client.api.js', 'client');
+  api.addFiles('http.publish.server.api.js', 'server');
 
 });
 
-Package.on_test(function (api) {
+Package.onTest(function (api) {
   api.use('cfs:http-publish', ['client', 'server']);
   api.use('test-helpers', ['client', 'server']);
   api.use('http', 'client');
@@ -28,6 +29,6 @@ Package.on_test(function (api) {
   api.use(['tinytest', 'underscore', 'ejson', 'ordered-dict',
            'random', 'deps']);
 
-  api.add_files('http.publish.tests.server.js', 'server');
-  api.add_files('http.publish.tests.client.js', 'client');
+  api.addFiles('http.publish.tests.server.js', 'server');
+  api.addFiles('http.publish.tests.client.js', 'client');
 });
