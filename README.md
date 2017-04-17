@@ -5,17 +5,17 @@ This package add the ability to add `HTTP` server publish to your project. It's 
 
 DEPRECATING: Use https://atmospherejs.com/simple/rest instead
 
-##Usage
+## Usage
 HTTP.publish creates a http crud restpoint for a collection *- only one cursor is allowed pr. publish*
 
-###Security
+### Security
 `CRUD+L` - Create Read Update Delete + List are common rest point operations.
 
 All `CUD` methods are the exact same as the `ddp` methods handlers - This means that `Meteor.allow` and `Meteor.deny` are setting the access rules for both `ddp` and `http` collection methods.
 
 All `R+L` methods are limited to the publish function.
 
-###Fully mounted
+### Fully mounted
 If handed a collection and a publish function the HTTP.publish will mount on follow urls and methods:
 * `GET` - `/api/list` *- all published data*
 * `POST` - `/api/list` *- insert a document into collection*
@@ -33,7 +33,7 @@ If handed a collection and a publish function the HTTP.publish will mount on fol
   });
 ```
 
-###Publish view only
+### Publish view only
 If handed a mount name and a publish function the HTTP.publish will mount:
 * `GET` - `/mylist` *- all published data*
 
@@ -47,7 +47,7 @@ If handed a mount name and a publish function the HTTP.publish will mount:
   });
 ```
 
-###Create Update Delete only
+### Create Update Delete only
 If handed a collection only the HTTP.publish will mount:
 * `POST` - `/api/list` *- insert a document into collection*
 * `PUT` - `/api/list/:id` *- update a document*
@@ -60,14 +60,14 @@ If handed a collection only the HTTP.publish will mount:
   HTTP.publish({collection: myCollection});
 ```
 
-##Publish scope
+## Publish scope
 The publish scope contains different kinds of inputs. We can also get user details if logged in.
 
 * `this.userId` The user whos id and token was used to run this method, if set/found
 * `this.query` - query params `?token=1` -> { token: 1 }
 * `this.params` - Set params /foo/:name/test/:id -> { name: '', id: '' }
 
-##Passing data via header
+## Passing data via header
 From the client:
 ```js
   HTTP.get('/api/list', {
@@ -85,12 +85,12 @@ HTTP Server method:
   });
 ```
 
-##Authentication
+## Authentication
 For details on authentication of http calls please read the [Authentication part in HTTP.methods package](https://github.com/raix/Meteor-http-methods#authentication)
 
 *The publish will have the `this.userId` set if an authenticated user is making the request.*
 
-##Format handlers
+## Format handlers
 The query parametre `format` is used to set different output formats. The buildin format is `json` *(EJSON since we are on Meteor)*
 
 Example: *(`json` is buildin)*
@@ -121,9 +121,9 @@ Example: *(`json` is buildin)*
     });
 ```
 
-##Unpublish
+## Unpublish
 For `api` integrity theres added an `HTTP.unpublish` method that takes a collection or name of mount point to remove.
 
-##API Documentation
+## API Documentation
 
 [Here](api.md)
