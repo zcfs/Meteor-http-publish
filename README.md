@@ -1,6 +1,13 @@
 cfs:http-publish [![Build Status](https://travis-ci.org/CollectionFS/Meteor-http-publish.png?branch=master)](https://travis-ci.org/CollectionFS/Meteor-http-publish)
 ============
 
+~~Looking for maintainers - please reach out!~~
+This package is to be archived due to inability to find contributors, thanks to everyone who helped make it possible.
+
+**If you're looking for an alternative, we highly recommend [Meteor-Files](https://github.com/VeliovGroup/Meteor-Files) by [VeliovGroup](https://github.com/VeliovGroup)**
+
+---
+
 This package add the ability to add `HTTP` server publish to your project. It's a server-side package only.
 
 DEPRECATING: Use https://atmospherejs.com/simple/rest instead
