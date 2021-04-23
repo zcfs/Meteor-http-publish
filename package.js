@@ -1,6 +1,6 @@
 Package.describe({
-  git: 'https://github.com/CollectionFS/Meteor-http-publish.git',
-  name: 'cfs:http-publish',
+  git: 'https://github.com/zcfs/Meteor-http-publish.git',
+  name: 'zcfs:http-publish',
   version: '0.0.13',
   summary: 'Adds HTTP.publish and HTTP.unpublish RESTful'
 });
@@ -10,9 +10,9 @@ Package.onUse(function(api) {
 
   api.use(['webapp', 'underscore', 'ejson', 'random'], 'server');
 
-  api.use('cfs:http-methods@0.0.27');
+  api.use('zcfs:http-methods@0.0.27');
 
-  api.imply && api.imply('cfs:http-methods');
+  api.imply && api.imply('zcfs:http-methods');
 
   api.export && api.export('_publishHTTP', { testOnly: true });
 
@@ -22,7 +22,7 @@ Package.onUse(function(api) {
 });
 
 Package.onTest(function (api) {
-  api.use('cfs:http-publish', ['client', 'server']);
+  api.use('zcfs:http-publish', ['client', 'server']);
   api.use('test-helpers', ['client', 'server']);
   api.use('http', 'client');
 

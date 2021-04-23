@@ -436,7 +436,7 @@ HTTP.publish = function httpPublish(options, publishFunc) {
 
   }
 
-  // Authenticate with our own auth method: https://github.com/CollectionFS/Meteor-http-methods#authentication
+  // Authenticate with our own auth method: https://github.com/zcfs/Meteor-http-methods#authentication
   if (options.auth) {
     if (methods[name]) {
       methods[name].auth = options.auth;

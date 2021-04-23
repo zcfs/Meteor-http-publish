@@ -1,4 +1,4 @@
-cfs:http-publish [![Build Status](https://travis-ci.org/CollectionFS/Meteor-http-publish.png?branch=master)](https://travis-ci.org/CollectionFS/Meteor-http-publish)
+zcfs:http-publish [![Build Status](https://travis-ci.org/CollectionFS/Meteor-http-publish.png?branch=master)](https://travis-ci.org/CollectionFS/Meteor-http-publish)
 ============
 
 This package add the ability to add `HTTP` server publish to your project. It's a server-side package only.
